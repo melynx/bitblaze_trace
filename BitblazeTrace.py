@@ -143,59 +143,6 @@ class OpVal30(object):
         '''.format(self.type, self.addr, self.value, self.tainted, self.origin, self.offset, self.source_id, self.new_id)
         return repr_string
 
-class TraceInstruction(object):
-    # TraceInstruction takes in the ascii trace format which Yanhao wrote using PinTool
-    def __init__(self, data):
-        self.cpu_state = {}
-        self.mem_read = []
-        self.mem_write = []
-
-    def parse_bitblaze_trace(self, entry_header):
-        self.insn_bytes = entry_header.rawbytes.encode('hex')
-        self.pc = entry_header.addr
-        for (address, size, mnemonic, op_str) in md.disasm_lite(raw_bytes.decode('hex'), IE.arch.code_addr):
-            self.asm = '{} {}'.format(mnemonic, op_str)
-
-
-    def parse_yh_pintool_trace(self, data):
-        for line in data:
-            temp = line.split('|')
-            if temp[0] == 'ins':
-                self.insn_bytes = temp[2]
-                self.pc = int(temp[3],16)
-                self.asm = temp[4]
-            elif temp[0] == 'memreg':
-                # memreg always have 6 entries if it is a valid mem op
-                if len(temp) == 6:
-                    self.is_mem = True
-                    mem_addr = int(temp[2], 16)
-                    mem_size_bytes = int(temp[3], 16)
-                    mem_idx = int(temp[4])
-                    mem_val = int(temp[5], 16)
-                    if temp[1] == '0':
-                        # this is a memory read, we'll put it in here
-                        self.mem_read.insert(mem_idx, ((mem_addr, mem_size_bytes, mem_val)))
-                    else:
-                        # this is a memory write, we'll put it here
-                        self.mem_write.insert(mem_idx, ((mem_addr, mem_size_bytes, mem_val)))
-                # don't do anything if not a valid mem op
-            else:
-                # for all other register values, we'll store into a dict
-                self.cpu_state[temp[0]] = int(temp[1], 16)
-
-    def __repr__(self):
-        return '{} : {}'.format(self.insn_bytes, self.asm)
-
-    def __hash__(self):
-        return hash(self.insn_bytes)
-
-    def __eq__(self, other):
-        return (self.insn_bytes == other.insn_bytes)
-
-    def __ne__(self, other):
-        return not(self == other)
-
-
 class BitblazeTrace(object):
     def __init__(self, path):
         # initialize the supported versions
