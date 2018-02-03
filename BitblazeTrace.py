@@ -73,9 +73,12 @@ class EntryHeader30(object):
         # truncate the rawbytes to just the current instruction
         self.rawbytes = self.rawbytes[:size]
         self.asm = '{} {}'.format(mnemonic, op_str)
+        self.tainted = False
         self.ops = []
         for _ in range(5):
             op = OpVal30(trace_file)
+            if (op.tainted):
+                self.tainted = True
             self.ops.append(op)
             self.size += op.size
         self.memregs = []
@@ -92,16 +95,7 @@ class EntryHeader30(object):
         self.size += size
 
     def __repr__(self):
-        for (address, size, mnemonic, op_str) in md.disasm_lite(self.rawbytes, self.addr):
-            self.asm = '{} {}'.format(mnemonic, op_str)
-        repr_string = '''
-        Addr: {}
-        Rawbytes: {}
-        ASM: {}
-        Ops: {}
-        Memregs: {}
-        ESP: {}
-        '''.format(hex(self.addr), self.rawbytes.encode('hex'), self.asm, self.ops, self.memregs, self.esp)
+        repr_string = '{} : {} : {}'.format(self.tainted, hex(self.addr), self.asm)
         return repr_string
 
 class OpVal30(object):
