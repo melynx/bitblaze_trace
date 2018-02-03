@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 import struct
+import os
 
 from capstone import *
 
@@ -68,7 +69,6 @@ class EntryHeader30(object):
         result, size = read_format('<I16s', trace_file)
         self.addr, self.rawbytes = result
         self.size = size
-        print('SSize:{}'.format(size))
         self.ops = []
         for _ in range(5):
             op = OpVal30(trace_file)
@@ -90,7 +90,6 @@ class EntryHeader30(object):
     def __repr__(self):
         for (address, size, mnemonic, op_str) in md.disasm_lite(self.rawbytes, self.addr):
             self.asm = '{} {}'.format(mnemonic, op_str)
-            print(self.asm)
         repr_string = '''
         Addr: {}
         Rawbytes: {}
@@ -126,7 +125,6 @@ class OpVal30(object):
         self.source_id = result
         self.size += size
         result, size = read_format('<4B', trace_file)
-        print(size)
         self.new_id = result
         self.size += size
 
@@ -163,10 +161,6 @@ class BitblazeTrace(object):
         self._read_header[self.version]()
         self._read_procs[self.version]()
 
-        print(self.magic_number)
-        print(self.version)
-        print(self.n_procs)
-        print(self.procs)
         #self._read_procs[version]()
 
     def _read_header_30(self):
@@ -182,11 +176,8 @@ class BitblazeTrace(object):
         if (self.trace_file.tell() == self.trace_size):
             return None
         eh = EntryHeader30(self.trace_file)
-        print(eh)
-        #for x in range(3):
-        #    for y in range(3):
-        #        print(eh.memregs[x][y])
+        return eh
 
     def ReadInstruction(self):
-        self._read_instruction[self.version]()
+        return self._read_instruction[self.version]()
 
