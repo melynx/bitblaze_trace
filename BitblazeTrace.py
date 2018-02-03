@@ -13,6 +13,11 @@ def read_format(_format, trace_file):
     result = struct.unpack(_format, buf)
     return result, size
 
+class OpType(object):
+    op_type = {30: ('TNone', 'TRegister', 'TMemLoc', 'TImmediate', 'TJump', 'TFloatRegister', 'TMemAddress')}
+    def __init__(self):
+        pass
+
 class ProcRecord30(object):
 # typedef struct _process_record {
 #     char name[32]; 
@@ -112,6 +117,7 @@ class OpVal30(object):
     def __init__(self, trace_file):
         result, size = read_format('<IIIQ', trace_file)
         self.type, self.addr, self.value, self.tainted = result
+        self.type_str = OpType.op_type[30][self.type]
         self.size = size
         result, size = read_format('<4I', trace_file)
         self.origin = result
@@ -136,7 +142,7 @@ class OpVal30(object):
         Offset: {}
         SourceID: {}
         NewID: {}
-        '''.format(self.type, self.addr, self.value, self.tainted, self.origin, self.offset, self.source_id, self.new_id)
+        '''.format(self.type, hex(self.addr), hex(self.value), self.tainted, self.origin, self.offset, self.source_id, self.new_id)
         return repr_string
 
 class BitblazeTrace(object):
