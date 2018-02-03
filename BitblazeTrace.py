@@ -69,6 +69,10 @@ class EntryHeader30(object):
         result, size = read_format('<I16s', trace_file)
         self.addr, self.rawbytes = result
         self.size = size
+        (address, size, mnemonic, op_str) = md.disasm_lite(self.rawbytes, self.addr).next()
+        # truncate the rawbytes to just the current instruction
+        self.rawbytes = self.rawbytes[:size]
+        self.asm = '{} {}'.format(mnemonic, op_str)
         self.ops = []
         for _ in range(5):
             op = OpVal30(trace_file)
