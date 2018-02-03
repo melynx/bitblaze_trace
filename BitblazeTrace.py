@@ -151,6 +151,12 @@ class BitblazeTrace(object):
         self._read_instruction = {30: self._read_instruction_30}
 
         self.trace_file = open(path, 'rb')
+
+        # get total size
+        self.trace_file.seek(0, os.SEEK_END)
+        self.trace_size = self.trace_file.tell()
+        self.trace_file.seek(0)
+
         # get magicnumber and version
         buf = self.trace_file.read(8)
         self.magic_number, self.version = struct.unpack("II", buf)
@@ -173,6 +179,8 @@ class BitblazeTrace(object):
             self.procs.append(ProcRecord30(self.trace_file))
 
     def _read_instruction_30(self):
+        if (self.trace_file.tell() == self.trace_size):
+            return None
         eh = EntryHeader30(self.trace_file)
         print(eh)
         #for x in range(3):
