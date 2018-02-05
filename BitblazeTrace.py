@@ -18,6 +18,16 @@ class OpType(object):
     def __init__(self):
         pass
 
+class BitblazeReg(object):
+    reg_name = {30: {# 8 bits lower, upper
+        116: 'eax', 117: 'ecx', 118: 'edx', 119: 'ebx', 120: 'eax', 121: 'ecx', 122: 'edx', 123: 'ebx',
+                     # 16bits
+                     124: 'eax', 125: 'ecx', 126: 'edx', 127: 'ebx', 128:'esp', 129: 'ebp', 130: 'esi', 131: 'edi',
+                     # 32bits
+                     132: 'eax', 133: 'ecx', 134: 'edx', 135: 'ebx', 136:'esp', 137: 'ebp', 138: 'esi', 139: 'edi'
+                    }
+               }
+
 class ProcRecord30(object):
 # typedef struct _process_record {
 #     char name[32]; 
